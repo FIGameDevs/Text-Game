@@ -1,6 +1,6 @@
 from ..Utils.grid import Grid
 from ..Utils.random import Rand
-
+import datetime
 
 class Entity:  # TODO: Add relations like "on the table", "behind the dresser"
     """
@@ -80,7 +80,7 @@ class Material:
         :param reflective: bool, affects description
         :param transparent: bool, allows looking inside object
         """
-        self.rand = Rand()
+        self.rand = Rand(datetime.datetime.now().microsecond)
         self.name = name
         self.color = color
         self.shape = shape
@@ -117,7 +117,7 @@ class Material:
         for i in range(lrange):
             category = self.whole_desc[self.rand.randint(int((i / lrange) * len(self.whole_desc)),
                                                          int(((i + 1) / lrange) * (len(self.whole_desc) - 1)))]
-            text += category[self.rand.randint(0, len(category) - 1)] + " "
+            text += category[self.rand.randto(len(category) - 1)] + " "
         text += self.name
         return text
 

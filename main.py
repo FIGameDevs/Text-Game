@@ -23,7 +23,8 @@ for item in grid.get_chunks(Vec3(-5, 1, 62), 100):
 grid.print_chunks(Vec3(0, 0, 0), 100)
 """
 
-stone = Material(name="stone brick", color=("salmon-meat colored", "reddish"), shape=("square",),
+stone = Material(name="brick", color=("salmon-meat colored", "reddish"), shape=("square",),
                  begin=("masterfully cut", "well made"), end=None, age=None, texture=("rough", "hard"))
 
-print(stone.describe(2))
+for i in range(10):
+    print(stone.describe(2))

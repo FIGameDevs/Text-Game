@@ -2,6 +2,7 @@ from .Core.entity import Entity, Material
 from .Utils.vectors import Vec3
 from .Utils.grid import Grid
 from .Utils.random import Rand
+from .Utils.English import dictionary
 """
 tup = (1, 1, 2)
 
@@ -21,10 +22,11 @@ for item in grid.get_chunks(Vec3(-5, 1, 62), 100):
     print(item)
 
 grid.print_chunks(Vec3(0, 0, 0), 100)
-"""
+
 
 stone = Material(name="brick", color=("salmon-meat colored", "reddish"), shape=("square",),
                  begin=("masterfully cut", "well made"), end=None, age=None, texture=("rough", "hard"))
 
 for i in range(10):
     print(stone.describe(2))
+"""

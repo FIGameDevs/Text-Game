@@ -3,7 +3,7 @@ from .Utils.vectors import Vec3
 from .Utils.grid import Grid
 from .Utils.random import Rand
 # from .Utils.English import dictionary #long load
-from .Utils import describers
+from .Utils.describers import Material, State, Part, Description
 
 """
 tup = (1, 1, 2)
@@ -29,3 +29,9 @@ grid.print_chunks(Vec3(0, 0, 0), 100)
 for i in range(10):
     print(stone.describe(2))
 """
+
+mat = Material.get("dark stone")
+st = State(5, 70)
+part = Part(mat, st)
+desc = Description("This is a %0,0%, %0,0%, %0,3%!!!", (part,))
+print(desc.describe())

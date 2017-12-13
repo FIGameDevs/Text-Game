@@ -1,7 +1,17 @@
 class Material:
-    __slots__ = ["name", "color", "texture", "smell", "taste", "density", "hardness", "is_reflective", "is_transparent"]
+    __slots__ = ["KEY", "name", "color", "texture", "smell", "taste", "density", "hardness", "is_reflective",
+                 "is_transparent"]
+    mats = {}
 
-    def __init__(self, name: str = "thing", color: str = "colorless", texture: str = "flat", smell: str = "nothing",
+    def __new__(cls, *args, **kwargs):
+        instance = super(Material, cls).__new__(cls)
+        instance.__init__(*args, **kwargs)
+        if kwargs["KEY"] in Material.mats:
+            print("!!!Material with same KEY already present, overriding!")
+        Material.mats[kwargs["KEY"]] = instance
+
+    def __init__(self, KEY: str, name: str = "thing", color: str = "colorless", texture: str = "flat",
+                 smell: str = "nothing",
                  taste: str = "without taste", density: int = 50, hardness: int = 50, is_reflective: bool = False,
                  is_transparent: bool = False):
         self.name = name
@@ -13,6 +23,10 @@ class Material:
         self.hardness = hardness
         self.is_reflective = is_reflective
         self.is_transparent = is_transparent
+
+    @classmethod
+    def get(cls, key):
+        return Material.mats[key]
 
     def describe(self, detail=0):
         if detail == 0:
@@ -30,6 +44,9 @@ class State:
     def __init__(self, wear: int = 20, filth: int = 20):
         self.wear = wear
         self.filth = filth
+
+    def is_interesting(self):
+        return self.wear > 80 or self.wear < 20 or self.filth > 80 or self.filth < 20
 
     def describe(self, detail=0):
         if detail == 0:
@@ -53,12 +70,21 @@ class State:
 
 
 class Part:
-    def __init__(self, material: Material, state: State, shape: str = "shapeless"):  # TODO implement shape etc..
+    __slots__ = ["material", "state"]
+
+    def __init__(self, material: Material, state: State):  # TODO implement shape etc..
         self.material = material
         self.state = state
 
     def describe(self, detail=0):
-        return self.state.describe(detail) + " " + self.material.describe(detail)
+        if detail == 0:
+            return self.material.describe(detail)
+        if detail == 1:
+            if self.state.is_interesting():
+                return self.state.describe(detail) + " " + self.material.describe(0)
+            else:
+                return self.material.describe(detail)
+        return self.state.describe(round(detail / 2)) + " " + self.material.describe(round((detail - 0.001) / 2))
 
 
 class Description:
@@ -69,12 +95,21 @@ class Description:
     def describe(self):
         text = self.description
         for i in range(len(self.parts)):
-            text = text.replace('%' + str(i) + '%', self.parts[i].describe(2))
+            while True:
+                id = -1
+                id_end = -1
+                try:
+                    id = text.index('%' + str(i))
+                    id_end = text.index('%', id + 1)
+                except ValueError:
+                    break
+                if id != -1:
+                    num_index = id + len('%' + str(i)) + 1
+                    num_id = int(text[num_index])
+                    if id_end != num_index + 1:
+                        print("Description detail must be one digit number!")
+                        break
+                    text = text.replace('%' + str(i) + "," + str(num_id) + '%', self.parts[i].describe(num_id))
         return text
 
-
-mat = Material("stone", "dark-red", "rough", "wet concrete", "tasteless", 50, 50, False, False)
-st = State(5, 70)
-part = Part(mat, st)
-desc = Description("This is a %0%!!!", (part,))
-print(desc.describe())
+from ..Utils import material_definitions

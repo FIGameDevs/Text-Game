@@ -30,8 +30,8 @@ for i in range(10):
     print(stone.describe(2))
 """
 
-mat = Material.get("dark stone")
-st = State(5, 70)
-part = Part(mat, st)
-desc = Description("This is a %0,0%, %0,0%, %0,3%!!!", (part,))
+mat = Material.get("wood")
+st = State(5, 70, is_natural=True)
+part = Part(mat, st, "lemon tree")
+desc = Description("This is a %0,0%, %0,0%, %0,1%!!!", (part,))
 print(desc.describe())

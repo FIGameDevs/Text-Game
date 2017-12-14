@@ -1,3 +1,6 @@
+from .vectors import Vec3
+
+
 class Material:
     __slots__ = ["KEY", "name", "color", "texture", "smell", "taste", "density", "hardness", "is_reflective",
                  "is_transparent"]
@@ -30,30 +33,54 @@ class Material:
 
     def describe(self, detail=0):
         if detail == 0:
-            return self.name
-        if detail == 1:
-            return self.color + ' ' + self.name
-        return self.texture + ' ' + self.color + ' ' + self.name
+            return self.color
+        return self.texture + ' ' + self.color
 
 
 class State:
-    __slots__ = ["wear", "filth"]
-    wear_desc = ["factory new", "kinda new", "damaged", "totally broken"]  # TODO redo by somebody with language skills
-    filth_desc = ["clean as fuck", "clean", "in dirt covered", "in dirt and poop covered"]
+    __slots__ = ["wear", "filth", "size"]
+    unnat_wear_desc = ["brand-new", ]  # TODO redo by somebody with language skills
+    nat_wear_desc = ["untouched", "new", "intact", "scratched", "damaged", "broken"]  # TODO complete
 
-    def __init__(self, wear: int = 20, filth: int = 20):
+    unnat_filth_desc = ["unbelievably clean", "spotless", "very clean", "pretty clean", "clean", "kinda clean",
+                        "a little dusty", "unpolished", "dusty", "scruffy", "in dust covered", "uncleaned",
+                        "little dirty", "kinda dirty", "pretty dirty", "messy", "decaying"]
+    nat_filth_desc = ["untouched", "fresh", "neat", "nice", "greasy", "unsanitary", "ugly", "absolutely dirty"]
+
+    n_height_desc = []
+    alive_height_desc = []
+
+    n_width_desc = []
+    alive_width_desc = []
+
+    n_size_desc = []
+    alive_size_desc = []
+
+    def __init__(self, wear: int = 20, filth: int = 20, is_natural: bool = False, is_alive: bool = False,
+                 size: Vec3 = Vec3(1, 1, 1)):
         self.wear = wear
         self.filth = filth
+        self.size = size
 
-    def is_interesting(self):
-        return self.wear > 80 or self.wear < 20 or self.filth > 80 or self.filth < 20
+        if is_natural:
+            self.wear_desc = State.nat_wear_desc
+            self.filth_desc = State.nat_filth_desc
+        else:
+            self.wear_desc = State.unnat_wear_desc
+            self.filth_desc = State.unnat_filth_desc
+        if is_alive:
+            self.height_desc = State.alive_height_desc
+            self.width_desc = State.alive_width_desc
+            self.size_desc = State.alive_size_desc
+        else:
+            self.height_desc = State.n_alive_height_desc
+            self.width_desc = State.n_alive_width_desc
+            self.size_desc = State.n_alive_size_desc
 
     def describe(self, detail=0):
+        wr = self.wear_desc[int((self.wear / 100) * (len(self.wear_desc) - 1))]
+        fl = self.filth_desc[int((self.filth / 100) * (len(self.filth_desc) - 1))]
         if detail == 0:
-            return ""
-        wr = State.wear_desc[int((self.wear / 100) * (len(State.wear_desc) - 1))]
-        fl = State.filth_desc[int((self.filth / 100) * (len(State.filth_desc) - 1))]
-        if detail == 1:
             if self.wear < self.filth:
                 if self.wear < 20:
                     return wr
@@ -70,21 +97,20 @@ class State:
 
 
 class Part:
-    __slots__ = ["material", "state"]
+    __slots__ = ["material", "state", "name"]
 
-    def __init__(self, material: Material, state: State):  # TODO implement shape etc..
+    def __init__(self, material: Material, state: State, name: str = "item"):  # TODO implement shape etc..
+        self.name = name
         self.material = material
         self.state = state
 
     def describe(self, detail=0):
         if detail == 0:
-            return self.material.describe(detail)
+            return self.name
         if detail == 1:
-            if self.state.is_interesting():
-                return self.state.describe(detail) + " " + self.material.describe(0)
-            else:
-                return self.material.describe(detail)
-        return self.state.describe(round(detail / 2)) + " " + self.material.describe(round((detail - 0.001) / 2))
+            return self.state.describe(detail) + " " + self.name
+        return self.state.describe(round(detail / 2)) + " " + self.material.describe(
+            round((detail - 1.001) / 2)) + " " + self.name
 
 
 class Description:
@@ -111,5 +137,6 @@ class Description:
                         break
                     text = text.replace('%' + str(i) + "," + str(num_id) + '%', self.parts[i].describe(num_id))
         return text
+
 
 from ..Utils import material_definitions

@@ -38,7 +38,7 @@ class Material:
 
 
 class State:
-    __slots__ = ["wear", "filth", "size"]
+    __slots__ = ["wear", "filth", "size", "wear_desc", "filth_desc", "height_desc", "width_desc", "size_desc"]
     unnat_wear_desc = ["brand-new", ]  # TODO redo by somebody with language skills
     nat_wear_desc = ["untouched", "new", "intact", "scratched", "damaged", "broken"]  # TODO complete
 
@@ -73,9 +73,9 @@ class State:
             self.width_desc = State.alive_width_desc
             self.size_desc = State.alive_size_desc
         else:
-            self.height_desc = State.n_alive_height_desc
-            self.width_desc = State.n_alive_width_desc
-            self.size_desc = State.n_alive_size_desc
+            self.height_desc = State.n_height_desc
+            self.width_desc = State.n_width_desc
+            self.size_desc = State.n_size_desc
 
     def describe(self, detail=0):
         wr = self.wear_desc[int((self.wear / 100) * (len(self.wear_desc) - 1))]

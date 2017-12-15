@@ -2,8 +2,10 @@ from .Core.entity import Entity
 from .Utils.vectors import Vec3
 from .Utils.grid import Grid
 from .Utils.random import Rand
+from .Core import skills
 # from .Utils.English import dictionary #long load
 from .Utils import describers
+from .Core import skill_system
 
 """
 tup = (1, 1, 2)

@@ -2,8 +2,10 @@ from .Core.entity import Entity
 from .Utils.vectors import Vec3
 from .Utils.grid import Grid
 from .Utils.random import Rand
+from .Core import skills
 # from .Utils.English import dictionary #long load
-from .Utils.describers import Material, State, Part, Description
+from .Utils import describers
+from .Core import skill_system
 
 """
 tup = (1, 1, 2)
@@ -29,9 +31,3 @@ grid.print_chunks(Vec3(0, 0, 0), 100)
 for i in range(10):
     print(stone.describe(2))
 """
-
-mat = Material.get("wood")
-st = State(5, 70, is_natural=True)
-part = Part(mat, st, "lemon tree")
-desc = Description("This is a %0,0%, %0,0%, %0,1%!!!", (part,))
-print(desc.describe())

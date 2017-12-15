@@ -1,7 +1,20 @@
-class Material:
-    __slots__ = ["name", "color", "texture", "smell", "taste", "density", "hardness", "is_reflective", "is_transparent"]
+from .vectors import Vec3
 
-    def __init__(self, name: str = "thing", color: str = "colorless", texture: str = "flat", smell: str = "nothing",
+
+class Material:
+    __slots__ = ["KEY", "name", "color", "texture", "smell", "taste", "density", "hardness", "is_reflective",
+                 "is_transparent"]
+    mats = {}
+
+    def __new__(cls, *args, **kwargs):
+        instance = super(Material, cls).__new__(cls)
+        instance.__init__(*args, **kwargs)
+        if kwargs["KEY"] in Material.mats:
+            print("!!!Material with same KEY already present, overriding!")
+        Material.mats[kwargs["KEY"]] = instance
+
+    def __init__(self, KEY: str, name: str = "thing", color: str = "colorless", texture: str = "flat",
+                 smell: str = "nothing",
                  taste: str = "without taste", density: int = 50, hardness: int = 50, is_reflective: bool = False,
                  is_transparent: bool = False):
         self.name = name
@@ -14,29 +27,60 @@ class Material:
         self.is_reflective = is_reflective
         self.is_transparent = is_transparent
 
+    @classmethod
+    def get(cls, key):
+        return Material.mats[key]
+
     def describe(self, detail=0):
         if detail == 0:
-            return self.name
-        if detail == 1:
-            return self.color + ' ' + self.name
-        return self.texture + ' ' + self.color + ' ' + self.name
+            return self.color
+        return self.texture + ' ' + self.color
 
 
 class State:
-    __slots__ = ["wear", "filth"]
-    wear_desc = ["factory new", "kinda new", "damaged", "totally broken"]  # TODO redo by somebody with language skills
-    filth_desc = ["clean as fuck", "clean", "in dirt covered", "in dirt and poop covered"]
+    __slots__ = ["wear", "filth", "size", "wear_desc", "filth_desc", "height_desc", "width_desc", "size_desc"]
+    unnat_wear_desc = ["brand-new", ]  # TODO redo by somebody with language skills
+    nat_wear_desc = ["untouched", "new", "intact", "scratched", "damaged", "broken"]  # TODO complete
 
-    def __init__(self, wear: int = 20, filth: int = 20):
+    unnat_filth_desc = ["unbelievably clean", "spotless", "very clean", "pretty clean", "clean", "kinda clean",
+                        "a little dusty", "unpolished", "dusty", "scruffy", "in dust covered", "uncleaned",
+                        "little dirty", "kinda dirty", "pretty dirty", "messy", "decaying"]
+    nat_filth_desc = ["untouched", "fresh", "neat", "nice", "greasy", "unsanitary", "ugly", "absolutely dirty"]
+
+    n_height_desc = []
+    alive_height_desc = []
+
+    n_width_desc = []
+    alive_width_desc = []
+
+    n_size_desc = []
+    alive_size_desc = []
+
+    def __init__(self, wear: int = 20, filth: int = 20, is_natural: bool = False, is_alive: bool = False,
+                 size: Vec3 = Vec3(1, 1, 1)):
         self.wear = wear
         self.filth = filth
+        self.size = size
+
+        if is_natural:
+            self.wear_desc = State.nat_wear_desc
+            self.filth_desc = State.nat_filth_desc
+        else:
+            self.wear_desc = State.unnat_wear_desc
+            self.filth_desc = State.unnat_filth_desc
+        if is_alive:
+            self.height_desc = State.alive_height_desc
+            self.width_desc = State.alive_width_desc
+            self.size_desc = State.alive_size_desc
+        else:
+            self.height_desc = State.n_height_desc
+            self.width_desc = State.n_width_desc
+            self.size_desc = State.n_size_desc
 
     def describe(self, detail=0):
+        wr = self.wear_desc[int((self.wear / 100) * (len(self.wear_desc) - 1))]
+        fl = self.filth_desc[int((self.filth / 100) * (len(self.filth_desc) - 1))]
         if detail == 0:
-            return ""
-        wr = State.wear_desc[int((self.wear / 100) * (len(State.wear_desc) - 1))]
-        fl = State.filth_desc[int((self.filth / 100) * (len(State.filth_desc) - 1))]
-        if detail == 1:
             if self.wear < self.filth:
                 if self.wear < 20:
                     return wr
@@ -53,12 +97,20 @@ class State:
 
 
 class Part:
-    def __init__(self, material: Material, state: State, shape: str = "shapeless"):  # TODO implement shape etc..
+    __slots__ = ["material", "state", "name"]
+
+    def __init__(self, material: Material, state: State, name: str = "item"):  # TODO implement shape etc..
+        self.name = name
         self.material = material
         self.state = state
 
     def describe(self, detail=0):
-        return self.state.describe(detail) + " " + self.material.describe(detail)
+        if detail == 0:
+            return self.name
+        if detail == 1:
+            return self.state.describe(detail) + " " + self.name
+        return self.state.describe(round(detail / 2)) + " " + self.material.describe(
+            round((detail - 1.001) / 2)) + " " + self.name
 
 
 class Description:
@@ -69,12 +121,22 @@ class Description:
     def describe(self):
         text = self.description
         for i in range(len(self.parts)):
-            text = text.replace('%' + str(i) + '%', self.parts[i].describe(2))
+            while True:
+                id = -1
+                id_end = -1
+                try:
+                    id = text.index('%' + str(i))
+                    id_end = text.index('%', id + 1)
+                except ValueError:
+                    break
+                if id != -1:
+                    num_index = id + len('%' + str(i)) + 1
+                    num_id = int(text[num_index])
+                    if id_end != num_index + 1:
+                        print("Description detail must be one digit number!")
+                        break
+                    text = text.replace('%' + str(i) + "," + str(num_id) + '%', self.parts[i].describe(num_id))
         return text
 
 
-mat = Material("stone", "dark-red", "rough", "wet concrete", "tasteless", 50, 50, False, False)
-st = State(5, 70)
-part = Part(mat, st)
-desc = Description("This is a %0%!!!", (part,))
-print(desc.describe())
+from ..Utils import material_definitions

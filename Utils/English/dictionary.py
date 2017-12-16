@@ -38,6 +38,8 @@ def parse_dictionary(path):
                 word.comparative = infl
             elif words[2] == "SUPER":
                 word.superlative = infl
+        else:
+            word.adjective = infl
 
     def noun(word, words, infl):
         word.add_part(PartOfSpeech.NOUN)
@@ -54,7 +56,7 @@ def parse_dictionary(path):
 
     def verb(word, words, infl):
         word.add_part(PartOfSpeech.VERB)
-        word.present = word.base_word
+        word.present = words[0]
         if words[2] == "INF":
             word.infinitive = infl
         elif words[2] == "3sg" and words[3] == "PRES":
@@ -250,16 +252,43 @@ def get_closest_word(word: str):
     return closest
 
 
+alpha_whitelist = set('abcdefghijklmnopqrstuvwxy ABCDEFGHIJKLMNOPQRSTUVWXYZ')
+
+
 def to_present(sentence):
-    words = sentence.split()
-    new_words = []
-    for word in words:
-        if word in word_dic and word_dic[word].part & PartOfSpeech.VERB == PartOfSpeech.VERB:
-            new_words.append(word_dic[word].present)
-        else:
-            new_words.append(word)
-    return " ".join(new_words)
+    new_s = ''.join(filter(alpha_whitelist.__contains__, sentence))
+    words = new_s.split()
+    new_s = sentence
+    if words[0] not in word_dic and words[0].lower() in word_dic:
+        new_s = new_s[0].lower() + new_s[1:]
+        words[0] = words[0].lower()
 
+    new_s = new_s.replace("have done", "do")
+    new_s = new_s.replace("have had", "have")
+    new_s = new_s.replace("could", "can")
 
-print(to_present("Did you ever feel like you will be a noob"))
-print(word_dic["will"])
+    for i in range(len(words)):
+        if words[i] == "will":
+            new_s = new_s.replace(" will", "", 1)
+            words[i] = words[i - 1]
+        elif words[i] == "be":
+            if words[i - 1] == "I":
+                new_s = new_s.replace("be", "am", 1)
+            elif words[i - 1] == "you" or words[i - 1] == "they" or words[i - 1] == "we":
+                new_s = new_s.replace("be", "are", 1)
+            else:
+                new_s = new_s.replace("be", "is", 1)
+        if words[i] in word_dic and word_dic[words[i]].part & PartOfSpeech.VERB == PartOfSpeech.VERB:
+            if words[i - 1] == "she" or words[i - 1] == "he" or words[i - 1] == "it":
+                try:
+                    new_s = new_s.replace(words[i], word_dic[words[i]].third_singular_present, 1)
+                except AttributeError:
+                    pass
+            if words[i - 1] == "on":
+                new_s = new_s.replace(words[i], word_dic[words[i]].progressive, 1)
+            elif words[i - 1] != "the" and words[i - 1] != "very":
+                new_s = new_s.replace(words[i], word_dic[words[i]].present, 1)
+
+    if sentence[0].isupper():
+        new_s = new_s[0].upper() + new_s[1:]
+    return new_s

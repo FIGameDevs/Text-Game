@@ -4,7 +4,7 @@ from .Utils.grid import Grid
 from .Utils.random import Rand
 # from .Utils.English import dictionary #long load
 from .Utils.describers import Material, State, Part, Description
-from .Utils.English import pronunciation, dictionary
+from .Utils.English import dictionary#,pronunciation
 """
 tup = (1, 1, 2)
 

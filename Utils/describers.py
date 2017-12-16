@@ -47,7 +47,7 @@ class State:
                         "little dirty", "kinda dirty", "pretty dirty", "messy", "decaying"]
     nat_filth_desc = ["untouched", "fresh", "neat", "nice", "greasy", "unsanitary", "ugly", "absolutely dirty"]
 
-    n_height_desc = []
+    n_height_desc = [] #TODO complete and include in describe()
     alive_height_desc = []
 
     n_width_desc = []
@@ -93,7 +93,7 @@ class State:
             return wr + ", but " + fl
         if self.wear - self.filth > 50:
             return wr + ", but still " + fl
-        return wr + " " + fl
+        return fl + " " + wr
 
 
 class Part:

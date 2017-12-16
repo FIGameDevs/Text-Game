@@ -29,7 +29,7 @@ class Word:
 
 def parse_dictionary(path):
     dic = {}
-    dividers = ' \t\0'
+    words_by_first_three = {}
 
     def adj(word, words, infl):
         word.add_part(PartOfSpeech.ADJECTIVE)
@@ -54,6 +54,7 @@ def parse_dictionary(path):
 
     def verb(word, words, infl):
         word.add_part(PartOfSpeech.VERB)
+        word.present = word.base_word
         if words[2] == "INF":
             word.infinitive = infl
         elif words[2] == "3sg" and words[3] == "PRES":
@@ -64,6 +65,95 @@ def parse_dictionary(path):
             word.past = infl
         elif words[2] == "PPART":
             word.past_particle = infl
+
+    def pron(word, words, infl):
+        word.add_part(PartOfSpeech.PRONOUN)
+        if len(words) != 2:
+            if len(words) != 3:
+                if words[3] == "acc":
+                    if words[2] == "1sg":
+                        word.first_sing_pron_obj = infl
+                    elif words[2] == "2sg":
+                        word.second_sing_pron_obj = infl
+                    elif words[2] == "3sg":
+                        word.third_sing_pron_obj = infl
+                    elif words[2] == "1pl":
+                        word.first_plur_pron_obj = infl
+                    elif words[2] == "2pl":
+                        word.second_plur_pron_obj = infl
+                    elif words[2] == "3pl":
+                        word.third_plur_pron_obj = infl
+                elif words[3] == "refl":
+                    if words[2] == "1sg":
+                        word.first_sing_pron_refl = infl
+                    elif words[2] == "2sg":
+                        word.second_sing_pron_refl = infl
+                    elif words[2] == "3sg":
+                        word.third_sing_pron_refl = infl
+                    elif words[2] == "1pl":
+                        word.first_plur_pron_refl = infl
+                    elif words[2] == "2pl":
+                        word.second_plur_pron_refl = infl
+                    elif words[2] == "3pl":
+                        word.third_plur_pron_refl = infl
+                elif words[3] == "nomacc":
+                    if words[2] == "1sg":
+                        word.first_sing_pron = infl
+                        word.first_sing_pron_obj = infl
+                    elif words[2] == "2sg":
+                        word.second_sing_pron = infl
+                        word.second_sing_pron_obj = infl
+                    elif words[2] == "3sg":
+                        word.third_sing_pron = infl
+                        word.third_sing_pron_obj = infl
+                    elif words[2] == "1pl":
+                        word.first_plur_pron = infl
+                        word.first_plur_pron_obj = infl
+                    elif words[2] == "2pl":
+                        word.second_plur_pron = infl
+                        word.second_plur_pron_obj = infl
+                    elif words[2] == "3pl":
+                        word.third_plur_pron = infl
+                        word.third_plur_pron_obj = infl
+                elif words[2] == "GEN":
+                    if words[3] == "ref1sg":
+                        word.first_sing_pron_poss = infl
+                    elif words[3] == "ref2sg":
+                        word.second_sing_pron_poss = infl
+                    elif words[3] == "ref3sg":
+                        word.third_sing_pron_poss = infl
+                    elif words[3] == "ref1pl":
+                        word.first_plur_pron_poss = infl
+                    elif words[3] == "ref2pl":
+                        word.second_plur_pron_poss = infl
+                    elif words[3] == "ref3pl":
+                        word.third_plur_pron_poss = infl
+                else:
+                    if words[2] == "1sg":
+                        word.first_sing_pron = infl
+                    elif words[2] == "2sg":
+                        word.second_sing_pron = infl
+                    elif words[2] == "3sg":
+                        word.third_sing_pron = infl
+                    elif words[2] == "1pl":
+                        word.first_plur_pron = infl
+                    elif words[2] == "2pl":
+                        word.second_plur_pron = infl
+                    elif words[2] == "3pl":
+                        word.third_plur_pron = infl
+            else:
+                if words[2] == "1sg":
+                    word.first_sing_pron = infl
+                elif words[2] == "2sg":
+                    word.second_sing_pron = infl
+                elif words[2] == "3sg":
+                    word.third_sing_pron = infl
+                elif words[2] == "1pl":
+                    word.first_plur_pron = infl
+                elif words[2] == "2pl":
+                    word.second_plur_pron = infl
+                elif words[2] == "3pl":
+                    word.third_plur_pron = infl
 
     def prep(word, words, infl):
         word.add_part(PartOfSpeech.PREPOSITION)
@@ -77,7 +167,7 @@ def parse_dictionary(path):
     def adv(word, words, infl):
         word.add_part(PartOfSpeech.ADVERB)
 
-    switch = {"A": adj, "N": noun, "V": verb, "Prep": prep, "Det": det, "Conj": conj, "Adv": adv}
+    switch = {"A": adj, "N": noun, "V": verb, "Prep": prep, "Det": det, "Conj": conj, "Adv": adv, "Pron": pron}
 
     with open(path) as f:
         for line in f:
@@ -95,8 +185,81 @@ def parse_dictionary(path):
                 dic[words[0]] = my_word
                 dic[inflected] = my_word
                 switch.get(words[1], lambda _x, _y, _z: None)(my_word, words, inflected)
+                if words[0][0:3] not in words_by_first_three:
+                    words_by_first_three[words[0][0:3]] = []
+                if inflected[0:3] not in words_by_first_three:
+                    words_by_first_three[inflected[0:3]] = []
+                words_by_first_three[words[0][0:3]].append(words[0])
+                words_by_first_three[inflected[0:3]].append(inflected)
 
-    return dic
+    for k, v in words_by_first_three.items():
+        v.sort()
+    return words_by_first_three, dic
 
 
-word_dic = parse_dictionary("Utils/English/morph_english.txt")
+words_by_first_three, word_dic = parse_dictionary("Utils/English/morph_english.txt")
+
+
+def get_closest_word_precise(word: str):
+    """
+    Returns most similar word, only words with same first three letters are considered.
+    :param word: one word string
+    :return: string - a closest word
+    """
+
+    def same_c(w1, w2):
+        s = 0
+        for i in range(3, min(len(w1), len(w2))):
+            if w1[i] == w2[i]:
+                s += 1
+        return s
+
+    closest = None
+    cl_same = -1
+    for word2 in words_by_first_three[word[0:3]]:
+        curr_same = same_c(word, word2)
+        if curr_same > cl_same:
+            cl_same = curr_same
+            closest = word2
+    return closest
+
+
+def get_closest_word(word: str):
+    """
+    Returns most similar word, only words with same first three letters are considered.
+    :param word: one word string
+    :return: string - a closest word
+    """
+
+    def same_c(w1, w2):
+        s = 0
+        for i in range(3, min(len(w1), len(w2))):
+            if w1[i] == w2[i]:
+                s += 1
+        return s
+
+    closest = None
+    cl_same = -1
+    for word2 in words_by_first_three[word[0:3]]:
+        curr_same = same_c(word, word2)
+        if curr_same > cl_same:
+            cl_same = curr_same
+            closest = word2
+        if cl_same > 1:
+            break
+    return closest
+
+
+def to_present(sentence):
+    words = sentence.split()
+    new_words = []
+    for word in words:
+        if word in word_dic and word_dic[word].part & PartOfSpeech.VERB == PartOfSpeech.VERB:
+            new_words.append(word_dic[word].present)
+        else:
+            new_words.append(word)
+    return " ".join(new_words)
+
+
+print(to_present("Did you ever feel like you will be a noob"))
+print(word_dic["will"])

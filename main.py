@@ -4,7 +4,7 @@ from .Utils.grid import Grid
 from .Utils.random import Rand
 # from .Utils.English import dictionary #long load
 from .Utils.describers import Material, State, Part, Description
-
+from .Utils.English import pronunciation, dictionary
 """
 tup = (1, 1, 2)
 
@@ -30,8 +30,8 @@ for i in range(10):
     print(stone.describe(2))
 """
 
-mat = Material.get("wood")
-st = State(5, 70, is_natural=True)
-part = Part(mat, st, "lemon tree")
-desc = Description("This is a %0,0%, %0,0%, %0,1%!!!", (part,))
+mat = Material.get("dark stone")
+st = State(20, 80, is_natural=False)
+part = Part(mat, st, "brick")
+desc = Description("This is a %0,2%!!!", (part,))
 print(desc.describe())

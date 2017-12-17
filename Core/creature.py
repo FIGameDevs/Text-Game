@@ -20,7 +20,7 @@ class Limb:
         self.hp = hp
         self.importance = importance
         self.description = description
-        self.orientation=orientation
+        self.orientation = orientation
 
     def change_hp(self, hp):
         self.hp += hp
@@ -46,11 +46,10 @@ class Limb:
 
     def is_orientation(self, orient):
         return orient & self.orientation == orient
-        #TO DO - OTESTOVAT :P
+        # TO DO - OTESTOVAT :P
 
 
 class Orientation(IntFlag):
-
     NONE = 0
     UP = 1
     DOWN = 2
@@ -58,6 +57,3 @@ class Orientation(IntFlag):
     RIGHT = 8
     LEFT = 16
     BACK = 32
-
-
-noha = Limb("leg", 100, 5, Orientation.RIGHT | Orientation.DOWN, )

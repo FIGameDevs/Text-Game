@@ -5,6 +5,8 @@ from .Utils.random import Rand
 # from .Utils.English import dictionary #long load
 from .Utils.describers import Material, State, Part, Description
 # from .Utils.English import dictionary,pronunciation
+from .Core.player import Character
+
 import threading
 import queue
 import socket
@@ -24,7 +26,7 @@ class ThreadedServer(object):
         self.sock.listen(5)
         while True:
             client, address = self.sock.accept()
-            client.settimeout(300) #TODO: Change client timeout
+            client.settimeout(300)  # TODO: Change client timeout
             threading.Thread(target=self.listenToClient, args=(client, address)).start()
 
     def listenToClient(self, client, address):
@@ -75,6 +77,8 @@ def main():
     server = ThreadedServer(" ", 2222)
 
     get_input_blocking()
+
+
 
 
 if __name__ == "__main__":

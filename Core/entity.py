@@ -6,7 +6,7 @@ class Entity:  # TODO: Add relations like "on the table", "behind the dresser"
     Base class for all ingame objects.
     """
 
-    def __init__(self, name, pos, size):
+    def __init__(self, name, pos):
         """
 
         :string name: Object name
@@ -14,7 +14,7 @@ class Entity:  # TODO: Add relations like "on the table", "behind the dresser"
         """
         self.name = name
         self.__position = pos
-        self.__size = size
+
         self.containing_grid = None
 
     def __repr__(self):
@@ -34,15 +34,12 @@ class Entity:  # TODO: Add relations like "on the table", "behind the dresser"
     def position(self):
         return self.__position
 
-    def size(self):
-        return self.__size
-
     def bounds(self):
         """
         Returns tuple of two Vec3s, lower and upper bound of entity
         :return: (Vec3, Vec3)
         """
-        return self.__position - self.__size / 2, self.__position + self.__size / 2
+        return None  # TODO: rework
 
     def is_in_bounds(self, pos):
         """
@@ -54,6 +51,12 @@ class Entity:  # TODO: Add relations like "on the table", "behind the dresser"
         return lower.x < pos.x < upper.x and lower.y < pos.y < upper.y and lower.z < pos.z < upper.z
 
 
-class Container:
-    def __init__(self, chunk_size):
+class Container(Entity):
+    def __init__(self, chunk_size, name, pos, desc_floor, desc_wall, desc_ceiling, exit):
         self.grid = Grid(chunk_size)
+        super().__init__(name, pos)
+
+        self.desc_floor = desc_floor
+        self.desc_wall = desc_wall
+        self.desc_ceiling = desc_ceiling
+        self.exit = exit

@@ -1,8 +1,10 @@
 import threading
 import queue
 import socket
+import time
 from .Core import command_processor
 from .Core import connected_players
+from .Core import game
 
 stop_server = False
 
@@ -26,8 +28,9 @@ class ThreadedServer(object):
                 client, address = self.sock.accept()
             except:
                 continue
-            print(client)
-            client.settimeout(240)  # TODO: Change client timeout
+            print("Client", id(client), "connected.")
+            client.settimeout(240)
+            client.daemon = True
             connected_players.add_connection(client)
             threading.Thread(target=self.listenToClient, args=(client, address)).start()
         print("Stopped listening.")
@@ -39,15 +42,18 @@ class ThreadedServer(object):
             try:
                 data = client.recv(size)
                 if data:
-                    print(data.decode())
-                    response = data
-                    client.send(response)
+                    command_processor.enque(connected_players.get_connected(client), data.decode("utf-8", "backslashreplace").strip())
                 """
                 else:
                     print("Client disconnected.")
                     connected_players.remove_connection(client)
                     client.close()
                     return True"""
+            except socket.timeout:
+                print("Client", id(client), "timed out.")
+                connected_players.remove_connection(client)
+                client.close()
+                return False
             except:
                 print("Error while serving client.", id(client))
                 connected_players.remove_connection(client)
@@ -77,6 +83,9 @@ def get_input_blocking():
 
 def stop():
     print("--Stopping server.--")
+    connected_players.send_to_all("---Server is closing---")
+    for client in connected_players.yield_sockets():
+        client.close()
     global stop_server
     stop_server = True
 
@@ -101,7 +110,15 @@ def main():
 
     server = ThreadedServer(" ", 2222)
 
-    get_input_blocking()
+    threading.Thread(target=get_input_blocking).start()
+
+    current_time = time.time()
+    while not stop_server:
+        command_processor.process()
+        delta = time.time() - current_time
+        game.update(delta)
+        current_time = time.time()
+
     print("Server stopped.")
 
 

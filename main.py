@@ -4,34 +4,80 @@ from .Utils.grid import Grid
 from .Utils.random import Rand
 # from .Utils.English import dictionary #long load
 from .Utils.describers import Material, State, Part, Description
-from .Utils.English import dictionary#,pronunciation
-"""
-tup = (1, 1, 2)
-
-print(Vec3(*tup).magnitude())
-
-grid = Grid()
-
-grid.add(Entity("Dog", Vec3(0, 2.5, 0)))
-grid.add(Entity("Car", Vec3(10, 0, 3)))
-grid.add(Entity("Cat", Vec3(-10, 1, 40.22)))
-grid.add(Entity("Giraffe", Vec3(1, 5, 0)))
-grid.add(Entity("Plane", Vec3(12, 10, 30)))
-grid.add(Entity("House", Vec3(22, 2, 20)))
-grid.add(Entity("Pea", Vec3(-50, 0, 60)))
-
-for item in grid.get_chunks(Vec3(-5, 1, 62), 100):
-    print(item)
-
-grid.print_chunks(Vec3(0, 0, 0), 100)
+# from .Utils.English import dictionary,pronunciation
+import threading
+import queue
+import socket
 
 
-for i in range(10):
-    print(stone.describe(2))
-"""
+class ThreadedServer(object):
+    def __init__(self, host, port):
+        self.host = host
+        self.port = port
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.sock.bind((self.host, self.port))
 
-mat = Material.get("dark stone")
-st = State(20, 80, is_natural=False)
-part = Part(mat, st, "brick")
-desc = Description("This is a %0,2%!!!", (part,))
-print(desc.describe())
+        threading.Thread(target=self.listen).start()
+
+    def listen(self):
+        self.sock.listen(5)
+        while True:
+            client, address = self.sock.accept()
+            client.settimeout(300) #TODO: Change client timeout
+            threading.Thread(target=self.listenToClient, args=(client, address)).start()
+
+    def listenToClient(self, client, address):
+        size = 1024
+        while True:
+            try:
+                data = client.recv(size)
+                if data:
+                    # Set the response to echo back the recieved data
+                    print(data.decode())
+                    response = data
+                    client.send(response)
+                else:
+                    print("Client disconnected.")
+                    client.close()
+                    return True
+            except:
+                client.close()
+                return False
+
+
+def get_input_blocking():
+    input_queue = queue.Queue()
+    input_thread = threading.Thread(target=add_input, args=(input_queue,))
+    input_thread.daemon = True
+    input_thread.start()
+
+    print("Waiting for input...")
+
+    while True:
+        if not input_queue.empty():
+            process_input(input_queue.get())
+
+
+def add_input(input_queue):
+    while True:
+        inp = input()
+        input_queue.put(inp)
+
+
+def process_input(inp):
+    print("Input:", inp)  # TODO: process server commands
+
+
+def main():
+    print("Server starting.")
+
+    server = ThreadedServer(" ", 2222)
+
+    get_input_blocking()
+
+
+if __name__ == "__main__":
+    main()
+else:
+    print("This should be main script!!!")

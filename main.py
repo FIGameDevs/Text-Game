@@ -1,15 +1,10 @@
-from .Core.entity import Entity
-from .Utils.vectors import Vec3
-from .Utils.grid import Grid
-from .Utils.random import Rand
-# from .Utils.English import dictionary #long load
-from .Utils.describers import Material, State, Part, Description
-# from .Utils.English import dictionary,pronunciation
-from .Core.player import Character
-
 import threading
 import queue
 import socket
+from .Core import command_processor
+from .Core import connected_players
+
+stop_server = False
 
 
 class ThreadedServer(object):
@@ -19,33 +14,50 @@ class ThreadedServer(object):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.sock.bind((self.host, self.port))
-
         threading.Thread(target=self.listen).start()
 
     def listen(self):
+        global stop_server
         self.sock.listen(5)
-        while True:
-            client, address = self.sock.accept()
-            client.settimeout(300)  # TODO: Change client timeout
+        self.sock.setblocking(False)
+        while not stop_server:
+            client, address = None, None
+            try:
+                client, address = self.sock.accept()
+            except:
+                continue
+            print(client)
+            client.settimeout(240)  # TODO: Change client timeout
+            connected_players.add_connection(client)
             threading.Thread(target=self.listenToClient, args=(client, address)).start()
+        print("Stopped listening.")
 
     def listenToClient(self, client, address):
         size = 1024
-        while True:
+        global stop_server
+        while not stop_server:
             try:
                 data = client.recv(size)
                 if data:
-                    # Set the response to echo back the recieved data
                     print(data.decode())
                     response = data
                     client.send(response)
+                """
                 else:
                     print("Client disconnected.")
+                    connected_players.remove_connection(client)
                     client.close()
-                    return True
+                    return True"""
             except:
+                print("Error while serving client.", id(client))
+                connected_players.remove_connection(client)
                 client.close()
                 return False
+        connected_players.remove_connection(id(client))
+        try:
+            client.close()
+        except:
+            pass
 
 
 def get_input_blocking():
@@ -56,29 +68,41 @@ def get_input_blocking():
 
     print("Waiting for input...")
 
-    while True:
+    while not stop_server:
         if not input_queue.empty():
             process_input(input_queue.get())
 
+    print("Stopped waiting for input.")
+
+
+def stop():
+    print("--Stopping server.--")
+    global stop_server
+    stop_server = True
+
 
 def add_input(input_queue):
-    while True:
+    global stop_server
+    while not stop_server:
         inp = input()
         input_queue.put(inp)
 
 
 def process_input(inp):
-    print("Input:", inp)  # TODO: process server commands
+    inp = inp.lower()
+    if inp == "quit" or inp == "q":
+        stop()
+    else:
+        print("Input:", inp)  # TODO: process server commands
 
 
 def main():
-    print("Server starting.")
+    print("Server starting. To quit type q.")
 
     server = ThreadedServer(" ", 2222)
 
     get_input_blocking()
-
-
+    print("Server stopped.")
 
 
 if __name__ == "__main__":

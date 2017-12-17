@@ -1,20 +1,24 @@
 from ..Utils.grid import Grid
+from ..Utils.vectors import Vec3
 
 
 class Entity:  # TODO: Add relations like "on the table", "behind the dresser"
     """
     Base class for all ingame objects.
     """
+    unique_id_counter = 0  # TODO: Definitely save this id to start from next time
 
-    def __init__(self, name, pos):
+    def __init__(self, name: str, pos: Vec3, size: Vec3):
         """
 
         :string name: Object name
         :Vec3 pos: World position of object
         """
+        self.unique_id = Entity.unique_id_counter
+        Entity.unique_id_counter += 1
         self.name = name
         self.__position = pos
-
+        self.__size = size
         self.containing_grid = None
 
     def __repr__(self):
@@ -39,7 +43,7 @@ class Entity:  # TODO: Add relations like "on the table", "behind the dresser"
         Returns tuple of two Vec3s, lower and upper bound of entity
         :return: (Vec3, Vec3)
         """
-        return None  # TODO: rework
+        return self.__position - self.__size / 2, self.__position + self.__size / 2
 
     def is_in_bounds(self, pos):
         """
@@ -52,11 +56,11 @@ class Entity:  # TODO: Add relations like "on the table", "behind the dresser"
 
 
 class Container(Entity):
-    def __init__(self, chunk_size, name, pos, desc_floor, desc_wall, desc_ceiling, exit):
+    def __init__(self, chunk_size, name, pos, size, desc_floor, desc_wall, desc_ceiling, exits):
         self.grid = Grid(chunk_size)
-        super().__init__(name, pos)
+        super().__init__(name, pos, size)
 
         self.desc_floor = desc_floor
         self.desc_wall = desc_wall
         self.desc_ceiling = desc_ceiling
-        self.exit = exit
+        self.exits = exits

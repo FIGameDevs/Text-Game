@@ -42,7 +42,7 @@ class Limb:
         return self.name
 
     def describe(self):
-        self.description.describe()
+        return self.description.describe()
 
     def is_orientation(self, orient):
         return orient & self.orientation == orient

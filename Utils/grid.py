@@ -92,7 +92,9 @@ class Grid:
                     new_pos = Vec3(x, y, z)
                     if new_pos not in self.chunks:
                         continue
-                    yield self.chunks[new_pos]
+                    for item in self.chunks[new_pos]:
+                        yield item
+
 
     def print_chunks(self, pos, distance):
         """

@@ -5,6 +5,36 @@ import time
 from .Core import command_processor
 from .Core import connected_players
 from .Core import game
+from .Utils import persistence
+
+
+def testing():
+    return
+    from .Utils.vectors import Vec3, Vec2
+    from .Core.entity import Container, Entity
+    from .Utils.describers import Material, Part, Description, State, mats
+    from .Core.player import Character
+
+    mat = Material(KEY="skin", name="skin")
+    world = Container(16, "world", Vec3(0, 0, 0), Vec3(10, 4, 10), "floor", "wall", "ceiling", None)
+    p = Part(mat, State(), "human skin")
+    d = Description("%0,2%", (p,))
+    world.grid.add(Character("Pagi", Vec3(1, 0, 2), Vec3(0.5, 2, 0.5), d))
+    """
+    import pickle
+    with open("saveFile.save", "rb") as f:
+        world = pickle.load(f)
+    """
+    print(world.grid.chunks)
+    for each in world.grid.get_chunks(Vec3(0, 0, 0), 100):
+        print(each.describe())
+
+    print(mats["wood"].describe())
+    import pickle
+    with open("Game State/world.save", "wb") as f:
+        pickle.dump(world, f)
+    pass
+
 
 stop_server = False
 
@@ -42,7 +72,8 @@ class ThreadedServer(object):
             try:
                 data = client.recv(size)
                 if data:
-                    command_processor.enque(connected_players.get_connected(client), data.decode("utf-8", "backslashreplace").strip())
+                    command_processor.enque(connected_players.get_connected(client),
+                                            data.decode("utf-8", "backslashreplace").strip())
                 """
                 else:
                     print("Client disconnected.")
@@ -101,6 +132,10 @@ def process_input(inp):
     inp = inp.lower()
     if inp == "quit" or inp == "q":
         stop()
+    elif inp == "save":
+        persistence.save_world()
+    elif inp == "load":
+        persistence.load_world()
     else:
         print("Input:", inp)  # TODO: process server commands
 
@@ -111,7 +146,7 @@ def main():
     server = ThreadedServer(" ", 2222)
 
     threading.Thread(target=get_input_blocking).start()
-
+    testing()  # for tests
     current_time = time.time()
     while not stop_server:
         command_processor.process()

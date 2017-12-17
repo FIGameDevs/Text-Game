@@ -1,22 +1,25 @@
 from .vectors import Vec3
 
-
+mats = {}
 class Material:
     __slots__ = ["KEY", "name", "color", "texture", "smell", "taste", "density", "hardness", "is_reflective",
                  "is_transparent"]
     mats = {}
-
+    """
     def __new__(cls, *args, **kwargs):
         instance = super(Material, cls).__new__(cls)
         instance.__init__(*args, **kwargs)
         if kwargs["KEY"] in Material.mats:
             print("!!!Material with same KEY already present, overriding!")
         Material.mats[kwargs["KEY"]] = instance
-
+    """
     def __init__(self, KEY: str, name: str = "thing", color: str = "colorless", texture: str = "flat",
                  smell: str = "nothing",
                  taste: str = "without taste", density: int = 50, hardness: int = 50, is_reflective: bool = False,
                  is_transparent: bool = False):
+        if KEY in mats:
+            print("Material key already added, a mistake?")
+        mats[KEY] = self
         self.name = name
         self.color = color
         self.texture = texture
@@ -47,7 +50,7 @@ class State:
                         "little dirty", "kinda dirty", "pretty dirty", "messy", "decaying"]
     nat_filth_desc = ["untouched", "fresh", "neat", "nice", "greasy", "unsanitary", "ugly", "absolutely dirty"]
 
-    n_height_desc = [] #TODO complete and include in describe()
+    n_height_desc = []  # TODO complete and include in describe()
     alive_height_desc = []
 
     n_width_desc = []

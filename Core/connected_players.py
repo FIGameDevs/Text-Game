@@ -1,6 +1,16 @@
+from .player import Character
+
+
 class Connected:
     def __init__(self, client):  # TODO: Add character for this connection
         self.client = client
+        self.character = None
+
+    def set_char(self, character: Character):
+        self.character = character
+
+    def send_string(self, text):
+        self.client.send(text.encode())
 
 
 players = {}
@@ -31,6 +41,7 @@ def send_message(client, text):
 def send_to_all(text):
     for k, v in players.items():
         v.client.send(text.encode())
+
 
 def yield_sockets():
     for k, v in players.items():

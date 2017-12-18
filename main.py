@@ -9,31 +9,8 @@ from .Utils import persistence
 
 
 def testing():
+
     return
-    from .Utils.vectors import Vec3, Vec2
-    from .Core.entity import Container, Entity
-    from .Utils.describers import Material, Part, Description, State, mats
-    from .Core.player import Character
-
-    mat = Material(KEY="skin", name="skin")
-    world = Container(16, "world", Vec3(0, 0, 0), Vec3(10, 4, 10), "floor", "wall", "ceiling", None)
-    p = Part(mat, State(), "human skin")
-    d = Description("%0,2%", (p,))
-    world.grid.add(Character("Pagi", Vec3(1, 0, 2), Vec3(0.5, 2, 0.5), d))
-    """
-    import pickle
-    with open("saveFile.save", "rb") as f:
-        world = pickle.load(f)
-    """
-    print(world.grid.chunks)
-    for each in world.grid.get_chunks(Vec3(0, 0, 0), 100):
-        print(each.describe())
-
-    print(mats["wood"].describe())
-    import pickle
-    with open("Game State/world.save", "wb") as f:
-        pickle.dump(world, f)
-    pass
 
 
 stop_server = False

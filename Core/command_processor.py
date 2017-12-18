@@ -18,3 +18,8 @@ def process():
         conn.client.send(command.encode("utf-8", "backslashreplace"))
         pass
     comm_lock.release()
+
+
+prepositions_to=["to","toward","into","facing","via","towards"]
+prepositions_by=["by","via","using","with","through","supported by"]
+prepositions_near=["close","near","nearby",]

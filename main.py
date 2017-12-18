@@ -9,7 +9,6 @@ from .Utils import persistence
 
 
 def testing():
-
     return
 
 
@@ -49,8 +48,8 @@ class ThreadedServer(object):
             try:
                 data = client.recv(size)
                 if data:
-                    command_processor.enque(connected_players.get_connected(client),
-                                            data.decode("utf-8", "backslashreplace").strip())
+                    command_processor.enqueue(connected_players.get_connected(client),
+                                              data.decode("utf-8", "backslashreplace").strip())
                 """
                 else:
                     print("Client disconnected.")
@@ -106,6 +105,8 @@ def add_input(input_queue):
 
 
 def process_input(inp):
+    if inp == "":
+        return
     inp = inp.lower()
     if inp == "quit" or inp == "q":
         stop()
@@ -113,6 +114,8 @@ def process_input(inp):
         persistence.save_world()
     elif inp == "load":
         persistence.load_world()
+    elif inp[0] == "/":
+        command_processor.enqueue(None, inp[1:])
     else:
         print("Input:", inp)  # TODO: process server commands
 

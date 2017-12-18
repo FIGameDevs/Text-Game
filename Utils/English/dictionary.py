@@ -202,6 +202,24 @@ def parse_dictionary(path):
 words_by_first_three, word_dic = parse_dictionary("Utils/English/morph_english.txt")
 
 
+def add_word(word):
+    if word not in word_dic:
+        w = Word()
+        w.base_word = word
+        word_dic[word] = w
+
+
+def get_word(word):
+    if word in word_dic:
+        return word_dic[word]
+
+
+def get_base_word(word):
+    if word in word_dic:
+        return word_dic[word].base_word
+    return word
+
+
 def get_closest_word_precise(word: str):
     """
     Returns most similar word, only words with same first three letters are considered.

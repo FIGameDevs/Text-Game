@@ -1,5 +1,5 @@
 print("Welcome to Pagi's server.")
-print("Loading...")
+print("Parsing dictionaries...")
 import threading
 import queue
 import socket
@@ -8,7 +8,7 @@ from .Core import command_processor
 from .Core import connected_players
 from .Core import game
 from .Utils import persistence
-from .Utils.English import dictionary, keyword_dictionary
+from .Utils.English import dictionary, keyword_dictionary, meaning_dictionary, numbers
 
 
 def testing():
@@ -121,10 +121,22 @@ def process_input(inp):
     elif inp[0] == "/":
         command_processor.enqueue(connected_players.Connected(connected_players.ClientDummy()), inp[1:])
     elif inp.split()[0] == "define":
-        print("Part of speech:", str(dictionary.get_word(inp.split()[1])))
-        print("Keyword type:", str(keyword_dictionary.get_keyword(inp.split()[1])))
+        w = inp.split()[1]
+        print("Definition:", w, str(meaning_dictionary.get_definition(w)))
+        print("Part of speech:", str(dictionary.get_word(w)))
+        print("Keyword type:", str(keyword_dictionary.get_keyword(w)))
+    elif inp.split()[0] == "num":
+        try:
+            w = inp.split()
+            n = int(w[1])
+            if len(w) > 2:
+                print(numbers.change_to_text(n, bool(w[2])))
+            else:
+                print(numbers.change_to_text(n))
+        except ValueError:
+            print(numbers.change_to_number(inp[4:]))
     else:
-        print("Input:", inp)  # TODO: process server commands
+        print("Input:", inp)
 
 
 def main():

@@ -26,10 +26,13 @@ def lookup(inp_words: list, connected: Connected):
             continue
         if not keyword_dictionary.is_keyword(word):
             if not dictionary.is_in_dictionary(word):
-                connected.send_string(
-                    "Sorry, I don't know what '" + word + "' means, did you mean " + dictionary.get_closest_word_baseonly(
-                        word) + "? If you want to say something literally, use " + '"quotes"\n')
-                return
+                try:
+                    int(word)
+                except ValueError:
+                    connected.send_string(
+                        "Sorry, I don't know what '" + word + "' means, did you mean " + dictionary.get_closest_word_baseonly(
+                            word) + "? If you want to say something literally, use " + '"quotes"\n')
+                    return
     parse(inp_words, connected)
 
 

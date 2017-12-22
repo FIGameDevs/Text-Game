@@ -1,4 +1,5 @@
-from .player import Character
+from Game.Core.Entities.player import Character
+
 
 class ClientDummy:
     def __init__(self):
@@ -10,6 +11,7 @@ class ClientDummy:
     def close(self):
         print("Tried closing a dummy client.")
 
+
 class Connected:
     def __init__(self, client):  # TODO: Add character for this connection
         self.client = client
@@ -20,7 +22,7 @@ class Connected:
         self.character = character
 
     def send_string(self, text):
-        self.client.send(text.encode())
+        self.client.send(text.encode("utf-8", "backslashreplace"))
 
     def set_question(self, question):
         """
@@ -36,11 +38,15 @@ class Connected:
 
     def answer_question(self, answer: list):
         if self.__question is not None:
-            res = self.__question(answer)
-            if res:
+            res = self.__question(self, answer)
+            if res is bool and res:
                 self.__question = None
                 return True
+            elif res is not bool:
+                self.__question = res
+                return True
             return False
+
 
 players = {}
 

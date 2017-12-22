@@ -1,3 +1,5 @@
+#deprecated
+
 class AttributeHolder:
     def __init__(self):
         self.level = 0

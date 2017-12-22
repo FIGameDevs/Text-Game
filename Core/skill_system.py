@@ -7,7 +7,7 @@ class AttributeHolder:
 
     def __str__(self):
         b = self.get_level()
-        return " level: " + str(b) + " xp: "+str(self.xp)
+        return " level: " + str(b) + " xp: " + str(self.xp)
 
     def get_level(self):
         return int(cmath.log(self.xp).real)
@@ -35,10 +35,5 @@ class Skills:
         skill_attributes = self.all_skills[skill]
         skill_attributes.xp += xp
 
-    def get_lvl(self,skill):
+    def get_lvl(self, skill):
         return self.all_skills[skill].get_level()
-
-
-
-
-

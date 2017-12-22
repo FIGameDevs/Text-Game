@@ -1,5 +1,7 @@
+import sys
 print("Welcome to Pagi's server.")
-print("Parsing dictionaries...")
+print("Parsing dictionaries...", end="")
+sys.stdout.flush()
 import threading
 import queue
 import socket
@@ -25,7 +27,7 @@ class ThreadedServer(object):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.sock.bind((self.host, self.port))
-        threading.Thread(target=self.listen).start()
+        threading.Thread(target=self.listen, daemon=True).start()
 
     def listen(self):
         global stop_server
@@ -40,9 +42,7 @@ class ThreadedServer(object):
             print("Client", id(client), "connected.")
             client.settimeout(240)
             connected_players.add_connection(client)
-            client_thread = threading.Thread(target=self.listenToClient, args=(client, address))
-            client_thread.daemon = True
-            client_thread.start()
+            threading.Thread(target=self.listenToClient, args=(client, address), daemon=True).start()
         print("Stopped listening.")
 
     def listenToClient(self, client, address):
@@ -140,11 +140,13 @@ def process_input(inp):
 
 
 def main():
-    print("Server starting. To quit type q.")
-
     server = ThreadedServer(" ", 2222)
-
-    threading.Thread(target=get_input_blocking).start()
+    for i in range(30):
+        print(".", end="")
+        sys.stdout.flush()
+        time.sleep(0.03)
+    print("\nServer running. To quit type q.")
+    threading.Thread(target=get_input_blocking, daemon=True).start()
     testing()  # for tests
     current_time = time.time()
     while not stop_server:

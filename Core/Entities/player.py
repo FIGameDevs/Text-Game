@@ -1,9 +1,10 @@
 from .creature import Creature, Limb
-from ..Utils.directions import Orientation
+from Game.Core.skill_system import Skills
+from Game.Utils.directions import Orientation
 
 
 class Character(Creature):
-    def __init__(self, name, size, pos, skin_desc):
+    def __init__(self, name, size, pos, skin_desc, msg_func):
         head = Limb("Head", 100, 95, Orientation.UP, skin_desc)
         neck = Limb("Neck", 100, 100, Orientation.UP, skin_desc)
 
@@ -29,6 +30,8 @@ class Character(Creature):
         limbs = [head, neck, left_arm, left_elbow, left_wrist, left_leg, left_knee, left_ankle, right_ankle, right_arm,
                  right_elbow, right_wrist, right_leg, right_knee, chest, stomach]
 
+        self.skills = Skills()
+        self.send = msg_func
         super().__init__(name, size, pos, limbs)
 
     def describe(self):
@@ -36,3 +39,6 @@ class Character(Creature):
         for limb in self.limbs:
             text += limb.describe() + ", "
         return text
+
+    def add_xp(self, skill: str, amount: int):
+        self.skills.add_xp(skill, amount)

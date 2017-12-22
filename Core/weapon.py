@@ -1,4 +1,4 @@
-from .entity import Entity
+from Game.Core.Entities.entity import Entity
 class Weapon(Entity):
 
     def __init__(self,damage,description,name,pos):

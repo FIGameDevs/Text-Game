@@ -1,9 +1,4 @@
-from .Core.entity import Entity
-from .Utils.vectors import Vec3
-from .Utils.grid import Grid
-from .Utils.random import Rand
 # from .Utils.English import dictionary #long load
-from .Utils import describers
 
 """
 tup = (1, 1, 2)

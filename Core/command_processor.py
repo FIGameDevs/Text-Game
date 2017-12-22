@@ -1,5 +1,5 @@
 from .connected_players import Connected
-from ..Utils.English import dictionary, keyword_dictionary
+from ..Utils.English import dictionary, keyword_dictionary, numbers
 from ..Core import parsing
 import threading
 import collections
@@ -29,17 +29,16 @@ def lookup(inp_words: list, connected: Connected):
                 try:
                     int(word)
                 except ValueError:
-                    connected.send_string(
-                        "Sorry, I don't know what '" + word + "' means, did you mean " + dictionary.get_closest_word_baseonly(
-                            word) + "? If you want to say something literally, use " + '"quotes"\n')
-                    return
+                    if numbers.change_to_number(word)[0] is None:
+                        connected.send_string(
+                            "Sorry, I don't know what '" + word + "' means, did you mean " + dictionary.get_closest_word_baseonly(
+                                word) + "? If you want to say something literally, use " + '"quotes"\n')
+                        return
     parse(inp_words, connected)
 
 
 def parse(inp_words: list, connected: Connected):
     parsing.start_parse(inp_words, connected)
-    connected.send_string("Dummy parsed.")
-    pass
 
 
 def bind():

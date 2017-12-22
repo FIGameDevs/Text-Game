@@ -47,7 +47,7 @@ text_to_numbers = rev(numbers_to_text)
 def change_to_number(text: str):
     words = text.replace(",", "").replace("-", " ").split()
     if words[0] == "zero":
-        return 0
+        return 0, False
     minus = words[0] == "minus"
     if minus:
         words.pop(0)

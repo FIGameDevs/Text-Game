@@ -1,5 +1,5 @@
-from ..Utils.grid import Grid
-from ..Utils.vectors import Vec3
+from Game.Utils.grid import Grid
+from Game.Utils.vectors import Vec3
 
 
 class Entity:  # TODO: Add relations like "on the table", "behind the dresser"

@@ -1,6 +1,8 @@
 from .vectors import Vec3
 
 mats = {}
+
+
 class Material:
     __slots__ = ["KEY", "name", "color", "texture", "smell", "taste", "density", "hardness", "is_reflective",
                  "is_transparent"]
@@ -13,6 +15,7 @@ class Material:
             print("!!!Material with same KEY already present, overriding!")
         Material.mats[kwargs["KEY"]] = instance
     """
+
     def __init__(self, KEY: str, name: str = "thing", color: str = "colorless", texture: str = "flat",
                  smell: str = "nothing",
                  taste: str = "without taste", density: int = 50, hardness: int = 50, is_reflective: bool = False,
@@ -42,7 +45,8 @@ class Material:
 
 class State:
     __slots__ = ["wear", "filth", "size", "wear_desc", "filth_desc", "height_desc", "width_desc", "size_desc"]
-    unnat_wear_desc = ["brand-new", ]  # TODO redo by somebody with language skills
+    unnat_wear_desc = ["brand-new", "untouched", "new", "intact", "scratched", "damaged",
+                       "broken"]  # TODO redo by somebody with language skills
     nat_wear_desc = ["untouched", "new", "intact", "scratched", "damaged", "broken"]  # TODO complete
 
     unnat_filth_desc = ["unbelievably clean", "spotless", "very clean", "pretty clean", "clean", "kinda clean",

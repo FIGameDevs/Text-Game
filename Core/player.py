@@ -1,4 +1,5 @@
-from .creature import Creature, Limb, Orientation
+from .creature import Creature, Limb
+from ..Utils.directions import Orientation
 
 
 class Character(Creature):

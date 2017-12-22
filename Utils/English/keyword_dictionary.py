@@ -12,6 +12,7 @@ word_dic = {}
 
 
 def add_command(word):
+    word = word.lower()
     if word in word_dic:
         word_dic[word] |= KeyWordType.COMMAND
     else:
@@ -19,6 +20,7 @@ def add_command(word):
 
 
 def add_entity(word):
+    word = word.lower()
     if word in word_dic:
         word_dic[word] |= KeyWordType.ENTITY
     else:
@@ -26,8 +28,17 @@ def add_entity(word):
 
 
 def is_keyword(word):
+    word = word.lower()
     return word in word_dic
 
 
+def is_specific_keyword(word: str, kw: KeyWordType):
+    word = word.lower()
+    if word in word_dic:
+        return word_dic[word] & kw == kw
+    return False
+
+
 def get_keyword(word):
-    return word_dic.get(word, default=KeyWordType.NONE)
+    word = word.lower()
+    return word_dic.get(word)

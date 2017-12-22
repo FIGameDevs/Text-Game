@@ -43,7 +43,9 @@ class Entity:  # TODO: Add relations like "on the table", "behind the dresser"
         Returns tuple of two Vec3s, lower and upper bound of entity
         :return: (Vec3, Vec3)
         """
-        return self.__position - self.__size / 2, self.__position + self.__size / 2
+        return Vec3(self.__position.x - self.__size.x / 2, self.__position.y, self.__position.z - self.__size.z / 2), \
+               Vec3(self.__position.x + self.__size.x / 2, self.__position.y + self.__size.y,
+                    self.__position.z + self.__size.z / 2)
 
     def is_in_bounds(self, pos):
         """

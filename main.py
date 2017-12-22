@@ -1,3 +1,5 @@
+print("Welcome to Pagi's server.")
+print("Loading...")
 import threading
 import queue
 import socket
@@ -6,6 +8,7 @@ from .Core import command_processor
 from .Core import connected_players
 from .Core import game
 from .Utils import persistence
+from .Utils.English import dictionary, keyword_dictionary
 
 
 def testing():
@@ -36,9 +39,10 @@ class ThreadedServer(object):
                 continue
             print("Client", id(client), "connected.")
             client.settimeout(240)
-            client.daemon = True
             connected_players.add_connection(client)
-            threading.Thread(target=self.listenToClient, args=(client, address)).start()
+            client_thread = threading.Thread(target=self.listenToClient, args=(client, address))
+            client_thread.daemon = True
+            client_thread.start()
         print("Stopped listening.")
 
     def listenToClient(self, client, address):
@@ -66,11 +70,11 @@ class ThreadedServer(object):
                 connected_players.remove_connection(client)
                 client.close()
                 return False
-        connected_players.remove_connection(id(client))
         try:
             client.close()
         except:
             pass
+        connected_players.remove_connection(id(client))
 
 
 def get_input_blocking():
@@ -115,7 +119,10 @@ def process_input(inp):
     elif inp == "load":
         persistence.load_world()
     elif inp[0] == "/":
-        command_processor.enqueue(None, inp[1:])
+        command_processor.enqueue(connected_players.Connected(connected_players.ClientDummy()), inp[1:])
+    elif inp.split()[0] == "define":
+        print("Part of speech:", str(dictionary.get_word(inp.split()[1])))
+        print("Keyword type:", str(keyword_dictionary.get_keyword(inp.split()[1])))
     else:
         print("Input:", inp)  # TODO: process server commands
 

@@ -1,6 +1,4 @@
 from .entity import Entity
-from enum import IntFlag
-
 
 class Creature(Entity):
     def __init__(self, name: str, pos, size, limbs: list):
@@ -46,14 +44,4 @@ class Limb:
 
     def is_orientation(self, orient):
         return orient & self.orientation == orient
-        # TO DO - OTESTOVAT :P
-
-
-class Orientation(IntFlag):
-    NONE = 0
-    UP = 1
-    DOWN = 2
-    MIDDLE = 4
-    RIGHT = 8
-    LEFT = 16
-    BACK = 32
+        # TODO - OTESTOVAT :P

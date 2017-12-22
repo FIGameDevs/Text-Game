@@ -30,6 +30,7 @@ class Word:
 def parse_dictionary(path):
     dic = {}
     words_by_first_three = {}
+    base_words_by_first = {}
 
     def adj(word, words, infl):
         word.add_part(PartOfSpeech.ADJECTIVE)
@@ -184,8 +185,10 @@ def parse_dictionary(path):
                         words[j] = words[j + 1]
                 my_word = dic.get(words[0], Word())
                 my_word.base_word = words[0]
-                dic[words[0]] = my_word
-                dic[inflected] = my_word
+                if words[0].lower() not in dic:
+                    dic[words[0].lower()] = my_word
+                if inflected.lower() not in dic:
+                    dic[inflected.lower()] = my_word
                 switch.get(words[1], lambda _x, _y, _z: None)(my_word, words, inflected)
                 if words[0][0:3] not in words_by_first_three:
                     words_by_first_three[words[0][0:3]] = []
@@ -193,31 +196,72 @@ def parse_dictionary(path):
                     words_by_first_three[inflected[0:3]] = []
                 words_by_first_three[words[0][0:3]].append(words[0])
                 words_by_first_three[inflected[0:3]].append(inflected)
+                if words[0][0].lower() not in base_words_by_first:
+                    base_words_by_first[words[0][0].lower()] = []
+                base_words_by_first[words[0][0].lower()].append(words[0])
 
     for k, v in words_by_first_three.items():
         v.sort()
-    return words_by_first_three, dic
+    return base_words_by_first, words_by_first_three, dic
 
 
-words_by_first_three, word_dic = parse_dictionary("Utils/English/morph_english.txt")
+base_words_by_first, words_by_first_three, word_dic = parse_dictionary("Utils/English/morph_english.txt")
 
 
 def add_word(word):
     if word not in word_dic:
         w = Word()
         w.base_word = word
-        word_dic[word] = w
+        word_dic[word.lower()] = w
 
 
 def get_word(word):
+    word = word.lower()
     if word in word_dic:
         return word_dic[word]
 
 
 def get_base_word(word):
+    word = word.lower()
     if word in word_dic:
         return word_dic[word].base_word
     return word
+
+
+def is_in_dictionary(word):
+    word = word.lower()
+    return word in word_dic
+
+
+def get_closest_word_baseonly(word: str):
+    if word is None or len(word) == 0:
+        return "none"
+    word = word.lower()
+
+    if word in word_dic:
+        return word
+
+    def count_same(w1, w2):
+        s = 0
+        if len(w1) == len(w2):
+            s = 0.5
+        for i in range(1, min(len(w1), len(w2))):
+            if w1[i] == w2[i]:
+                s += 1
+        return s
+
+    closest = "none"
+    cl_same = -1
+    if word[0] not in base_words_by_first:
+        return "none"
+    for tryword in base_words_by_first[word[0]]:
+        same = count_same(word, tryword)
+        if same > cl_same:
+            cl_same = same
+            closest = tryword
+        if cl_same + 1.51 >= len(word):
+            break
+    return closest
 
 
 def get_closest_word_precise(word: str):
@@ -226,6 +270,9 @@ def get_closest_word_precise(word: str):
     :param word: one word string
     :return: string - a closest word
     """
+    if len(word) < 3:
+        return "none"
+    word = word.lower()
 
     def same_c(w1, w2):
         s = 0
@@ -236,6 +283,8 @@ def get_closest_word_precise(word: str):
 
     closest = None
     cl_same = -1
+    if word[0:3] not in words_by_first_three:
+        return "none"
     for word2 in words_by_first_three[word[0:3]]:
         curr_same = same_c(word, word2)
         if curr_same > cl_same:
@@ -250,6 +299,9 @@ def get_closest_word(word: str):
     :param word: one word string
     :return: string - a closest word
     """
+    if len(word) < 3:
+        return "none"
+    word = word.lower()
 
     def same_c(w1, w2):
         s = 0
@@ -260,6 +312,8 @@ def get_closest_word(word: str):
 
     closest = None
     cl_same = -1
+    if word[0:3] not in words_by_first_three:
+        return "none"
     for word2 in words_by_first_three[word[0:3]]:
         curr_same = same_c(word, word2)
         if curr_same > cl_same:
